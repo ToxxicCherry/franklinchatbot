@@ -1,5 +1,7 @@
 from random import randint
 from create_bot import bot
+from DB import test_db
+from Scripts import check_and_add, add_user_to_bd
 from aiogram import types, Dispatcher
 from aiogram.types import ContentType
 from aiogram.dispatcher import FSMContext
@@ -16,6 +18,7 @@ async def new_member(message: types.Message, state: FSMContext):
 
     async with state.proxy() as data:
         data['msg'] = [msg.message_id]
+        data['chat_id'] = message.chat.id
         data['random_num'] = random_num
         data['try_left'] = 3
 
@@ -28,9 +31,18 @@ async def check_answer(message: types.Message, state: FSMContext):
             await state.finish()
             await message.answer(f'{message.from_user.first_name} теперь с нами')
             data['msg'].append(message.message_id)
+            chat_id = data['chat_id']
 
             for msg_id in data['msg']:
-                await bot.delete_message(chat_id='-1001716235924', message_id=msg_id)
+                await bot.delete_message(chat_id=chat_id, message_id=msg_id)
+
+            user_id = message.from_user.id
+            first_name = message.from_user.first_name
+            last_name = message.from_user.last_name
+            user_name = message.from_user.username
+
+            await add_user_to_bd(user_id=user_id, first_name=first_name, last_name=last_name, user_name=user_name)
+            await test_db(user_id, first_name, last_name, user_name)
 
         else:
             data['try_left'] -= 1
@@ -52,7 +64,13 @@ async def check_answer(message: types.Message, state: FSMContext):
                 data['msg'].append(message.message_id)
 
 
+async def add_user(message: types.Message):
+    await check_and_add(message)
+
+
 def register_handlers_users(dispatcher: Dispatcher):
-    #dispatcher.register_message_handler(new_member, content_types=[ContentType.NEW_CHAT_MEMBERS], state=None)
-    dispatcher.register_message_handler(new_member, commands=['validate'], state='*')
+    # dispatcher.register_message_handler(new_member, content_types=[ContentType.NEW_CHAT_MEMBERS], state=None)
+    dispatcher.register_message_handler(new_member, commands=['validate'], state=None)
     dispatcher.register_message_handler(check_answer, state=UserValidator.user_number)
+    dispatcher.register_message_handler(add_user, state=None)
+

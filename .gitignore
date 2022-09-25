@@ -1,3 +1,6 @@
 venv
 .idea
 __pycache__
+config.py
+DB
+handlers/__pycache__
