@@ -41,7 +41,7 @@ async def check_answer(message: types.Message, state: FSMContext):
             last_name = message.from_user.last_name
             user_name = message.from_user.username
 
-            await add_user_to_bd(user_id=user_id, first_name=first_name, last_name=last_name, user_name=user_name)
+            await check_and_add(message)
             await test_db(user_id, first_name, last_name, user_name)
 
         else:
