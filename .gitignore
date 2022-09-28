@@ -2,5 +2,6 @@ venv
 .idea
 __pycache__
 config.py
-DB
-handlers/__pycache__
+DB/__init__.py
+DB/test_bd.py
+handlers/__pycache__/

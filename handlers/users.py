@@ -1,7 +1,7 @@
 from random import randint
 from create_bot import bot
-from DB import test_db
-from Scripts import check_and_add, add_user_to_bd
+from Scripts import check_and_add, add_user_to_bd, profanity_filter
+from config import STEPIK_CHAT_ID, ADMINS
 from aiogram import types, Dispatcher
 from aiogram.types import ContentType
 from aiogram.dispatcher import FSMContext
@@ -42,17 +42,19 @@ async def check_answer(message: types.Message, state: FSMContext):
             user_name = message.from_user.username
 
             await check_and_add(message)
-            await test_db(user_id, first_name, last_name, user_name)
+            #await test_db(user_id, first_name, last_name, user_name)
 
         else:
             data['try_left'] -= 1
             if data['try_left'] == 0:
                 await state.finish()
-                await message.answer(f'{message.from_user.first_name} не прошел капчу и выгнан с позором!')
-                data['msg'].append(message.message_id)
+                await message.answer(f'{message.from_user.first_name} не прошел капчу и получает бан\n'
+                                     f'Может повторить попытку через час')
+                await bot.ban_chat_member(chat_id=data['chat_id'], user_id=message.from_user.id, until_date=3600)
 
+                data['msg'].append(message.message_id)
                 for msg_id in data['msg']:
-                    await bot.delete_message(chat_id='-1001716235924', message_id=msg_id)
+                    await bot.delete_message(chat_id=data['chat_id'], message_id=msg_id)
 
             else:
                 random_num = str(randint(1000, 9999))
@@ -64,13 +66,17 @@ async def check_answer(message: types.Message, state: FSMContext):
                 data['msg'].append(message.message_id)
 
 
-async def add_user(message: types.Message):
+async def any_messages(message: types.Message):
     await check_and_add(message)
+    if await profanity_filter(message):
+        alert_message = ', '.join(ADMINS)
+        alert_message = f'{alert_message}, в чате матерятся'
+        await message.reply(alert_message)
 
 
 def register_handlers_users(dispatcher: Dispatcher):
-    # dispatcher.register_message_handler(new_member, content_types=[ContentType.NEW_CHAT_MEMBERS], state=None)
-    dispatcher.register_message_handler(new_member, commands=['validate'], state=None)
+    dispatcher.register_message_handler(new_member, content_types=[ContentType.NEW_CHAT_MEMBERS], state=None)
+    #dispatcher.register_message_handler(new_member, commands=['validate'], state=None)
     dispatcher.register_message_handler(check_answer, state=UserValidator.user_number)
-    dispatcher.register_message_handler(add_user, state=None)
+    dispatcher.register_message_handler(any_messages, state=None)
 
