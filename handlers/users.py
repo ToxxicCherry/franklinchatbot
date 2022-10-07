@@ -41,7 +41,7 @@ async def check_answer(message: types.Message, state: FSMContext):
             last_name = message.from_user.last_name
             user_name = message.from_user.username
 
-            await check_and_add(message)
+            #await check_and_add(message) --- не работает
             #await test_db(user_id, first_name, last_name, user_name)
 
         else:
@@ -67,7 +67,7 @@ async def check_answer(message: types.Message, state: FSMContext):
 
 
 async def any_messages(message: types.Message):
-    await check_and_add(message)
+    #await check_and_add(message) --- не работает
     if await profanity_filter(message):
         alert_message = ', '.join(ADMINS)
         alert_message = f'{alert_message}, в чате матерятся'
