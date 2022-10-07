@@ -1,7 +1,7 @@
 from random import randint
 from create_bot import bot
-from Scripts import check_and_add, add_user_to_bd, profanity_filter
-from config import STEPIK_CHAT_ID, ADMINS
+from Scripts import check_and_add, profanity_filter
+from config import ADMINS
 from aiogram import types, Dispatcher
 from aiogram.types import ContentType
 from aiogram.dispatcher import FSMContext
@@ -78,5 +78,5 @@ def register_handlers_users(dispatcher: Dispatcher):
     dispatcher.register_message_handler(new_member, content_types=[ContentType.NEW_CHAT_MEMBERS], state=None)
     #dispatcher.register_message_handler(new_member, commands=['validate'], state=None)
     dispatcher.register_message_handler(check_answer, state=UserValidator.user_number)
-    dispatcher.register_message_handler(any_messages, state=None)
+    dispatcher.register_message_handler(any_messages, state='*')
 
