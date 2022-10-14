@@ -68,10 +68,11 @@ async def check_answer(message: types.Message, state: FSMContext):
 
 async def any_messages(message: types.Message):
     #await check_and_add(message) --- не работает
-    if await profanity_filter(message):
-        alert_message = ', '.join(ADMINS)
-        alert_message = f'{alert_message}, в чате матерятся'
-        await message.reply(alert_message)
+    if message.from_user.username in ADMINS:
+        if await profanity_filter(message):
+            alert_message = ', '.join(ADMINS)
+            alert_message = f'{alert_message}, в чате матерятся'
+            await message.reply(alert_message)
 
 
 def register_handlers_users(dispatcher: Dispatcher):
