@@ -1,11 +1,12 @@
 from random import randint
 from create_bot import bot
 from Scripts import check_and_add, profanity_filter
-from config import ADMINS
+from config import ADMINS, STEPIK_CHAT_ID
 from aiogram import types, Dispatcher
 from aiogram.types import ContentType
 from aiogram.dispatcher import FSMContext
 from aiogram.dispatcher.filters.state import State, StatesGroup
+
 
 
 class UserValidator(StatesGroup):
@@ -68,6 +69,8 @@ async def check_answer(message: types.Message, state: FSMContext):
 
 async def any_messages(message: types.Message):
     #await check_and_add(message) --- не работает
+
+
 
     if await profanity_filter(message):
         alert_message = ', '.join(ADMINS)

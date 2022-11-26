@@ -1,5 +1,6 @@
 from config import DB_HOST, DB_USER, DB_PASSWORD, DATABASE, STEPIK_CHAT_ID
 from aiogram import types
+from profanity_police.checker import Checker
 import asyncpg
 import json
 import ssl
@@ -68,12 +69,11 @@ async def check_and_add(message: types.Message):
 
 
 async def profanity_filter(message: types.Message):
-    text = message.text.lower()
+    text = [{'text': message.text.lower()}]
+    checker = Checker()
+    language = 'ru'
 
-    with open('DB/profane.json', 'r') as file:
-        data = json.load(file)
+    result = checker.check_swear_word(text, language)
 
-    result = any(map(lambda w: w['word'] in text, data))
-    del data
     return result
 
