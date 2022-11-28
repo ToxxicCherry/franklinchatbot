@@ -10,6 +10,5 @@ async def on_startup(_):
 
 
 
-call = types.CallbackQuery()
 users.register_handlers_users(dispatcher=dispatcher)
 executor.start_polling(dispatcher=dispatcher, skip_updates=True)
